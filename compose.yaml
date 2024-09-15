@@ -1,0 +1,36 @@
+services:
+  server:
+    image: golang:1.23-bookworm
+    working_dir: /app
+    command: go run github.com/air-verse/air
+    tty: true
+    volumes:
+      - source: ./
+        target: /app/
+        type: bind
+    ports:
+      - "8080:8080"
+    environment:
+      PSQL_HOST: postgres
+      PSQL_PORT: 5432
+      PSQL_DATABASE: tobechanged
+      PSQL_USER: postgres
+      PSQL_PASSWORD: postgres
+      PSQL_SSLMODE: disable
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./psql/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+networks:
+  default: {}
+volumes:
+  postgres_data:
+    driver: local
